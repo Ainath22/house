@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>My House Adventure!</title>
+<style>
+html,body{margin:0;overflow-x:hidden}
+body{font-family:"Comic Sans MS","Chalkboard SE","Trebuchet MS",sans-serif;background:#fff3d6;color:#5a2d00;text-align:center;padding-bottom:2rem}
+h1{margin:.5rem 0 .2rem;font-size:clamp(1.5rem,6vw,2.6rem)}
+.hide{display:none!important}
+button{font:inherit;cursor:pointer}
+.big{background:#ff7043;color:#fff;border:0;border-radius:2rem;padding:.7rem 1.6rem;font-size:clamp(1.1rem,4vw,1.8rem);font-weight:700;box-shadow:0 .3rem 0 #c63f17;margin:.4rem}
+.big.alt{background:#42a5f5;box-shadow:0 .3rem 0 #1e6fb8}
+.big.go{background:#43a047;box-shadow:0 .3rem 0 #25692a}
+#score{font-size:1.3rem;margin:.2rem}
+#teddyBig{font-size:clamp(4rem,16vw,7rem);line-height:1}
+#tsay{display:inline-block;background:#fff;border:.25rem solid #ffb74d;border-radius:1.2rem;padding:.4rem 1rem;font-size:clamp(1rem,3.5vw,1.5rem);margin:.3rem;min-height:1.4em}
+#clue{font-size:clamp(1.3rem,5vw,2.2rem);font-weight:700;margin:.4rem}
+.cards{display:flex;gap:2vw;justify-content:center;flex-wrap:wrap;margin:.8rem}
+.card{background:#fff;border:.35rem solid #ffb74d;border-radius:1.5rem;padding:.8rem 1.2rem;font-weight:700;font-size:clamp(1rem,3.2vw,1.6rem);min-width:26vw;color:inherit;transition:transform .2s}
+.card span{display:block;font-size:clamp(3rem,13vw,6rem)}
+.card:hover{transform:scale(1.06)}
+.card.ok{background:#c8f7c5;border-color:#2e9e3f;animation:pop .7s}
+.card.bad{animation:shake .5s;border-color:#e53935}
+#stage{container-type:inline-size;position:relative;width:min(96vw,900px);aspect-ratio:16/10;margin:.5rem auto;border:.4rem solid #8d5524;border-radius:1.5rem;overflow:hidden;--d:1.6s}
+#stage:before{content:"";position:absolute;left:0;right:0;bottom:0;height:30%;background:rgba(120,72,20,.25)}
+.p,.fx{position:absolute;transform:translate(-50%,-50%);line-height:1;font-size:calc(var(--s)*1cqw);transition:left var(--d) ease-in-out,top var(--d) ease-in-out}
+.wm{background:#fff;border:.8cqw solid #90a4ae;border-radius:2cqw;padding:1.5cqw}
+#ted{position:absolute;z-index:5;transform:translate(-50%,-50%);font-size:15cqw;line-height:1;transition:left var(--d) ease-in-out,top var(--d) ease-in-out,opacity .4s}
+#tb{transition:transform .8s}
+#tool{position:absolute;right:-45%;top:30%;font-size:.55em}
+#bub{position:absolute;left:50%;top:-45%;transform:translateX(-50%);font-size:.55em}
+.wig{animation:wig .6s infinite alternate}
+.bob{animation:bob .7s infinite alternate}
+.read{animation:read 1s infinite alternate}
+.fx{z-index:6;font-size:6cqw;animation:rise 2.4s forwards}
+#cap{font-size:clamp(1.3rem,5vw,2.4rem);font-weight:700;min-height:1.4em;color:#d84315}
+#great{position:absolute;inset:0;z-index:20;display:flex;align-items:center;justify-content:center;font-size:9cqw;font-weight:700;color:#fff;text-shadow:0 .5cqw 0 #e65100,0 0 3cqw #ffd54f;background:rgba(0,0,0,.2);animation:pop .8s}
+.conf{position:fixed;top:-2rem;z-index:50;font-size:2rem;animation:fall 3s linear forwards}
+@keyframes pop{0%{transform:scale(.3)}60%{transform:scale(1.15)}100%{transform:scale(1)}}
+@keyframes shake{0%,100%{transform:none}25%{transform:translateX(-.8rem) rotate(-3deg)}75%{transform:translateX(.8rem) rotate(3deg)}}
+@keyframes wig{from{transform:rotate(-22deg)}to{transform:rotate(22deg)}}
+@keyframes bob{from{transform:translateY(0)}to{transform:translateY(-8%)}}
+@keyframes read{from{transform:rotate(-10deg)}to{transform:rotate(10deg)}}
+@keyframes rise{0%{opacity:0;margin-top:0}20%{opacity:1}100%{opacity:0;margin-top:-14cqw}}
+@keyframes fall{to{transform:translateY(110vh) rotate(540deg)}}
+@media (prefers-reduced-motion:reduce){.wig,.bob,.read{animation:none}}
+</style>
+</head>
+<body>
+<h1>My House Adventure! 🏡</h1>
+<div id="score">⭐ 0 / 10</div>
+
+<section id="intro">
+  <div id="teddyBig">🧸</div>
+  <p id="tsay0" style="font-size:1.4rem">Hi! I am Teddy! Listen and find the room!</p>
+  <button class="big go" id="start">▶ START</button>
+</section>
+
+<section id="pick" class="hide">
+  <div id="teddyBig2" style="font-size:clamp(3.5rem,14vw,6rem)">🧸</div>
+  <div id="tsay"></div><br>
+  <div id="clue"></div>
+  <button class="big alt" id="listen">🔊 LISTEN</button>
+  <div class="cards" id="cards"></div>
+</section>
+
+<section id="scene" class="hide">
+  <div id="stage"></div>
+  <div id="cap"></div>
+  <button class="big alt" id="rep">🔁 AGAIN</button>
+  <button class="big" id="again">🏠 CHOOSE</button>
+  <button class="big go hide" id="next">NEXT ➡️</button>
+</section>
+
+<section id="end" class="hide">
+  <div style="font-size:6rem">🏆</div>
+  <h2 style="font-size:2.2rem">GREAT JOB! You finished!</h2>
+  <button class="big go" id="restart">▶ PLAY AGAIN</button>
+</section>
+
+<script>
+const $=s=>document.querySelector(s), sleep=ms=>new Promise(r=>setTimeout(r,ms));
+
+/* ===== ESCENAS: cada habitación = fondo + objetos + pasos de Teddy =====
+   props: [id, emoji, x%, y%, tamaño, clase]
+   pasos: go:[x,y] camina | d: segundos del movimiento | say: frase en inglés
+          tool: objeto en la mano | wig: lo agita | tbob:'bob'|'read' | rot: grados
+          bub: emoji sobre la cabeza | swap:[id,emoji] | prop:[id,x,y] | fx:[[emoji,n,x,y]]
+          hide: oculta/muestra a Teddy | w: espera en ms */
+const ROOMS={
+ bedroom:{n:'BEDROOM',e:'🛏️',bg:'linear-gradient(#cfe3ff,#9ec1f5)',clue:'I am sleepy! Go to sleep!',start:[10,74],
+  props:[['win','🪟',22,24,15],['moon','🌙',84,15,10],['bed','🛏️',62,64,34],['rug','🧶',30,82,8]],
+  steps:[{go:[44,74],say:'Teddy is going to bed!'},{go:[60,56]},{bub:'🥱',say:'Teddy is sleepy...',w:1500},
+   {bub:'',rot:90,go:[60,52],say:'Teddy is sleeping!',fx:[['💤',9]],w:4000}]},
+ bathroom:{n:'BATHROOM',e:'🪥',bg:'linear-gradient(#d9f4ff,#a6e3f5)',clue:'I need to brush my teeth!',start:[10,74],
+  props:[['mir','🪞',44,26,16],['sink','🚰',44,60,20],['tub','🛁',84,68,24],['soap','🧼',66,70,8]],
+  steps:[{go:[36,74],say:'Teddy is in the bathroom!'},{tool:'🪥',wig:1,say:'Teddy is brushing his teeth!',fx:[['🫧',12,40,60]],w:4500}]},
+ kitchen:{n:'KITCHEN',e:'🍳',bg:'linear-gradient(#fff2c4,#ffd98a)',clue:'I am hungry! Let\'s cook!',start:[10,74],
+  props:[['clock','🕒',22,20,10],['shelf','🥫',84,26,10],['pot','🍲',58,58,20],['fire','🔥',58,73,9]],
+  steps:[{go:[38,72],say:'Teddy is in the kitchen!'},{tool:'🥄',wig:1,say:'Teddy is cooking!',fx:[['♨️',10,58,46]],w:4000},
+   {tool:'',wig:0,bub:'😋',say:'Yummy!',w:2500}]},
+ dining:{n:'DINING ROOM',e:'🍽️',bg:'linear-gradient(#ffe0e6,#ffb3c1)',clue:'It\'s dinner time! Let\'s eat!',start:[10,74],
+  props:[['pic','🖼️',50,20,12],['chair','🪑',36,68,20],['table','🍽️',58,70,22],['cup','🥛',76,62,9]],
+  steps:[{go:[36,56],say:'Teddy is sitting down!'},{tool:'🍴',wig:1,bub:'😋',say:'Teddy is eating!',fx:[['🍝',3,58,58]],w:4500}]},
+ living:{n:'LIVING ROOM',e:'📺',bg:'linear-gradient(#e6dcff,#c3b0f5)',clue:'I want to watch TV!',start:[10,74],
+  props:[['plant','🪴',12,62,14],['tv','📺',82,46,22],['scr','🎬',82,45,7],['sofa','🛋️',42,68,30]],
+  steps:[{go:[42,58],say:'Teddy is sitting on the sofa!'},{tool:'🎛️',say:'Teddy is watching TV!',w:2000},
+   {swap:['scr','🐶'],w:1800},{swap:['scr','🎵'],w:1800},{swap:['scr','🌈'],w:1800}]},
+ garage:{n:'GARAGE',e:'🚗',bg:'linear-gradient(#e0e0e0,#b0b0b0)',clue:'Park the car!',start:[8,56],
+  props:[['tool','🔧',86,24,10],['line','🅿️',72,72,16],['car','🚗',22,72,24]],
+  steps:[{go:[22,56],say:'Teddy is in the garage!'},{go:[72,56],d:3.4,prop:['car',72,72],say:'Teddy is parking the car!',w:3800},
+   {bub:'👍',say:'Perfect!',w:2000}]},
+ garden:{n:'GARDEN',e:'🌷',bg:'linear-gradient(#bdeeff,#b8f0a0)',clue:'Let\'s smell the flowers!',start:[8,74],
+  props:[['sun','☀️',12,16,14],['tree','🌳',90,40,24],['fl','🌷',34,70,15],['pl','🪴',70,70,15]],
+  steps:[{go:[34,58],say:'Teddy is smelling the flower!'},{tbob:'bob',fx:[['💕',4]],w:2500},
+   {tbob:'',go:[62,58],tool:'🪣',say:'Teddy is watering the plants!',wig:1,fx:[['💧',10,70,64],['🦋',3,50,28]],w:4500}]},
+ study:{n:'STUDY',e:'📚',bg:'linear-gradient(#e4d2b4,#c9a978)',clue:'I want to read a book!',start:[10,74],
+  props:[['shelf','📚',80,36,22],['lamp','💡',24,34,10],['chair','🪑',38,68,20],['book','📖',56,70,14]],
+  steps:[{go:[38,56],say:'Teddy is sitting at the desk!'},{tbob:'read',say:'Teddy is reading!',w:2500},
+   {fx:[['📄',1,56,60]],swap:['book','📗'],w:2500}]},
+ laundry:{n:'LAUNDRY ROOM',e:'🧺',bg:'linear-gradient(#e8fbff,#b8e6ef)',clue:'My clothes are dirty!',start:[8,76],
+  props:[['wm','🌀',58,52,12,'wm'],['bk','🧺',88,72,16],['sh','👕',26,76,9]],
+  steps:[{go:[26,66],say:'Teddy picks up a shirt!',swap:['sh',''],tool:'👕',w:2200},
+   {go:[50,68],say:'Teddy is doing the laundry!',w:1800},{tool:'',bub:'🔘',say:'Teddy presses the button!',fx:[['🫧',10,58,46]],w:3000},
+   {bub:'',swap:['sh','👕'],prop:['sh',58,60],tool:'👕',w:1500},{swap:['sh',''],go:[80,66],w:2200},
+   {tool:'',swap:['sh','👕'],prop:['sh',88,66],say:'Clean clothes!',w:2500}]},
+ house:{n:'HOUSE',e:'🏠',bg:'linear-gradient(#bde4ff,#c9f2b0)',clue:'I am home! Knock, knock!',start:[10,80],
+  props:[['tree','🌳',12,56,18],['h','🏠',50,48,40],['win','🪟',50,34,8],['door','🚪',50,66,10],['fl','🌼',88,76,10]],
+  steps:[{go:[50,80],say:'Teddy is at the door!'},{swap:['door','✨'],say:'Teddy opens the door!',w:1500},
+   {hide:1,go:[50,68],d:1,say:'Teddy goes inside!',w:1600},{d:0,go:[50,36],w:100},{hide:0,tool:'👋',wig:1,say:'Hello! Teddy is home!',fx:[['💖',5]],w:4000}]}
+};
+
+/* ===== VOZ ===== */
+function speak(t){try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang='en-US';u.rate=.8;u.pitch=1.2;
+ const v=speechSynthesis.getVoices().find(v=>v.lang==='en-US');if(v)u.voice=v;speechSynthesis.speak(u)}catch(e){}}
+
+/* ===== MOTOR DE ESCENAS ===== */
+let tok=0,pos=[0,0];
+function put(el,x,y){el.style.left=x+'%';el.style.top=y+'%'}
+function fx(e,n,x,y){for(let i=0;i<n;i++)setTimeout(()=>{const s=document.createElement('span');s.className='fx';s.textContent=e;
+ put(s,(x??pos[0])+Math.random()*10-5,(y??pos[1])-10);$('#stage').append(s);setTimeout(()=>s.remove(),2600)},i*350)}
+function confetti(){for(let i=0;i<30;i++){const s=document.createElement('span');s.className='conf';s.textContent=['⭐','🎉','✨','🎈'][i%4];
+ s.style.left=Math.random()*95+'vw';s.style.animationDelay=Math.random()*1.2+'s';document.body.append(s);setTimeout(()=>s.remove(),4500)}}
+function cap(t){$('#cap').textContent=t;speak(t)}
+
+async function play(k){
+ const t=++tok,R=ROOMS[k],st=$('#stage');
+ $('#next').classList.add('hide');$('#cap').textContent='';
+ st.style.background=R.bg;st.style.setProperty('--d','1.6s');
+ st.innerHTML='<div id="ted"><div id="bub"></div><div id="tb">🧸</div><div id="tool"></div></div>'+
+  R.props.map(p=>`<div class="p ${p[5]||''}" id="${p[0]}" style="--s:${p[4]};left:${p[2]}%;top:${p[3]}%">${p[1]}</div>`).join('');
+ const ted=$('#ted'),tb=$('#tb'),tool=$('#tool'),bub=$('#bub');
+ ted.style.transition='none';put(ted,...R.start);pos=R.start;ted.offsetWidth;ted.style.transition='';
+ await sleep(500);
+ for(const s of R.steps){
+  if(t!==tok)return;
+  if(s.d!==undefined)st.style.setProperty('--d',s.d+'s');
+  if(s.say)cap(s.say);
+  if(s.hide!==undefined)ted.style.opacity=s.hide?0:1;
+  if(s.rot!==undefined)tb.style.transform=`rotate(${s.rot}deg)`;
+  if('tool' in s)tool.textContent=s.tool;
+  if('wig' in s)tool.className=s.wig?'wig':'';
+  if('tbob' in s)tb.className=s.tbob;
+  if('bub' in s)bub.textContent=s.bub;
+  if(s.swap)$('#'+s.swap[0]).textContent=s.swap[1];
+  if(s.prop)put($('#'+s.prop[0]),s.prop[1],s.prop[2]);
+  if(s.go){put(ted,...s.go);pos=s.go}
+  (s.fx||[]).forEach(f=>fx(...f));
+  await sleep(s.w??(s.go?parseFloat(st.style.getPropertyValue('--d'))*1000+300:1500));
+ }
+ if(t!==tok)return;
+ st.insertAdjacentHTML('beforeend','<div id="great">GREAT JOB! ⭐</div>');
+ speak('Great job!');confetti();
+ if(!done[cur]){done[cur]=1;score++;$('#score').textContent=`⭐ ${score} / 10`}
+ $('#next').classList.remove('hide');
+}
+
+/* ===== JUEGO ===== */
+const keys=Object.keys(ROOMS);let order=[],i=0,score=0,cur='',done={};
+function show(id){['intro','pick','scene','end'].forEach(x=>$('#'+x).classList.toggle('hide',x!==id))}
+function startGame(){order=[...keys].sort(()=>Math.random()-.5);i=0;score=0;done={};$('#score').textContent='⭐ 0 / 10';round()}
+function round(){
+ if(i>=order.length){show('end');confetti();speak('You finished! Great job!');return}
+ cur=order[i];tok++;choose();
+}
+function choose(){
+ tok++;show('pick');
+ $('#clue').textContent='“'+ROOMS[cur].clue+'”';
+ $('#tsay').textContent='Where do I go? 🤔';
+ const opts=[cur,...keys.filter(k=>k!==cur).sort(()=>Math.random()-.5).slice(0,2)].sort(()=>Math.random()-.5);
+ $('#cards').innerHTML=opts.map(k=>`<button class="card" data-k="${k}"><span>${ROOMS[k].e}</span>${ROOMS[k].n}</button>`).join('');
+ setTimeout(()=>speak(ROOMS[cur].clue),300);
+}
+$('#cards').addEventListener('click',e=>{
+ const c=e.target.closest('.card');if(!c)return;
+ if(c.dataset.k===cur){c.classList.add('ok');speak('Yes!');setTimeout(()=>{show('scene');play(cur)},1000)}
+ else{c.classList.add('bad');$('#tsay').textContent='Oh no! Try again! 🙈';speak('Oh no! Try again!');setTimeout(()=>c.classList.remove('bad'),600)}
+});
+$('#start').onclick=startGame;
+$('#listen').onclick=()=>speak(ROOMS[cur].clue);
+$('#rep').onclick=()=>play(cur);
+$('#again').onclick=choose;
+$('#next').onclick=()=>{i++;round()};
+$('#restart').onclick=startGame;
+</script>
+</body>
+</html>
